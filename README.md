@@ -1,4 +1,4 @@
-# Yahoo realtime search feed
+# Yahoo! realtime search feed
 
 [![Build status][github-actions-image]][github-actions-url]
 
