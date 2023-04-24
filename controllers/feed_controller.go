@@ -39,7 +39,12 @@ func (fc FeedController) Index(c *gin.Context) {
 		requestURL = res.Request.URL.String()
 	}
 
-	rss, err := fc.generateFeed((*entryList)[:limit], searchQuery, requestURL)
+	slicedEntryList := *entryList
+	if len(slicedEntryList) > limit {
+		slicedEntryList = slicedEntryList[:limit]
+	}
+
+	rss, err := fc.generateFeed(slicedEntryList, searchQuery, requestURL)
 	if err != nil {
 		log.Println(err)
 		c.String(http.StatusInternalServerError, "Error. Please check server log.")
