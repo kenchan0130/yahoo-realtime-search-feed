@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-
 	"github.com/kenchan0130/yahoo-realtime-search-feed/controllers"
 	"github.com/kenchan0130/yahoo-realtime-search-feed/repositories"
 )
