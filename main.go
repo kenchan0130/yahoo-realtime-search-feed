@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/kenchan0130/yahoo-realtime-search-feed/routers"
 	"log"
 	"os"
 	"strconv"
+
+	"github.com/kenchan0130/yahoo-realtime-search-feed/routers"
 )
 
 func main() {

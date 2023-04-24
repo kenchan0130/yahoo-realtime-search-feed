@@ -1,0 +1,32 @@
+run:
+  deadline: 30m10s
+
+issues:
+  max-per-linter: 0
+  max-same-issues: 0
+
+linters:
+  disable-all: true
+  enable:
+    - errcheck
+    - gci
+    - gofmt
+    - goimports
+    - gosec
+    - gosimple
+    - govet
+    - ineffassign
+    - nakedret
+    - nolintlint
+    - misspell
+    - prealloc
+    - staticcheck
+    - typecheck
+    - unused
+    - unparam
+    - unconvert
+    - vet
+    - vetshadow
+    - wastedassign
+    - whitespace
+    - wrapcheck

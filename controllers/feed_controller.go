@@ -2,15 +2,16 @@ package controllers
 
 import (
 	"fmt"
+	"log"
+	"net/http"
+	"strconv"
+	"strings"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/feeds"
 	"github.com/kenchan0130/yahoo-realtime-search-feed/models"
 	"github.com/kenchan0130/yahoo-realtime-search-feed/repositories"
 	"github.com/samber/lo"
-	"log"
-	"net/http"
-	"strconv"
-	"strings"
 )
 
 const defaultIndexLimit = 10
@@ -78,5 +79,10 @@ func (fc FeedController) generateFeed(entryList []models.TimelineEntry, query st
 		}
 	})
 
-	return feed.ToRss()
+	rss, err := feed.ToRss()
+	if err != nil {
+		return "", fmt.Errorf("feeds.Feed#ToRss(): %v", err)
+	}
+
+	return rss, nil
 }

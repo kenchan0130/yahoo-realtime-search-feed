@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/PuerkitoBio/goquery"
-	"github.com/kenchan0130/yahoo-realtime-search-feed/models"
 	"net/http"
 	"net/url"
+
+	"github.com/PuerkitoBio/goquery"
+	"github.com/kenchan0130/yahoo-realtime-search-feed/models"
 )
 
 type YahooRealtimeSearchRepository struct {
