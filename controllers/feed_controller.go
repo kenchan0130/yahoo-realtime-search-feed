@@ -61,6 +61,7 @@ func (fc FeedController) generateFeed(entryList *[]models.TimelineEntry, query s
 			Description: *entry.URL,
 			Created:     entry.CreatedAt.Time,
 			Id:          *entry.ID,
+			Author:      &feeds.Author{Name: fmt.Sprintf("@%s", *entry.ScreenName)},
 		}
 	})
 
