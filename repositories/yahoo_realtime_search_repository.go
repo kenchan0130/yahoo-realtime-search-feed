@@ -49,7 +49,12 @@ func (t YahooRealtimeSearchRepository) GetTimelineEntry(query string) (*[]models
 
 	doc, err := goquery.NewDocumentFromReader(res.Body)
 	if err != nil {
-		return nil, nil, fmt.Errorf("goquery.NewDocumentFromReader(): %v", err)
+		return nil, res, fmt.Errorf("goquery.NewDocumentFromReader(): %v", err)
+	}
+
+	// When there are no hits in the search results, the JSON in data does not exist, so empty is returned.
+	if doc.Find("#nomatch").Size() > 0 {
+		return &[]models.TimelineEntry{}, res, nil
 	}
 
 	dataStr := ""
@@ -58,27 +63,28 @@ func (t YahooRealtimeSearchRepository) GetTimelineEntry(query string) (*[]models
 		return false
 	})
 	if dataStr == "" {
-		return nil, nil, fmt.Errorf("'#__NEXT_DATA__' DOM is not found, please check %s response", u.String())
+		return nil, res, fmt.Errorf("'#__NEXT_DATA__' DOM is not found, please check %s response", u.String())
 	}
 
 	var data struct {
 		Props *models.Props `json:"props,omitempty"`
 	}
 	if err := json.Unmarshal([]byte(dataStr), &data); err != nil {
-		return nil, nil, fmt.Errorf("json.Unmarshal(): %v", err)
+		return nil, res, fmt.Errorf("json.Unmarshal(): %v", err)
 	}
 
 	if data.Props == nil {
-		return nil, nil, fmt.Errorf("the data of Props is not found, please check %s response", u.String())
+		return nil, res, fmt.Errorf("the data of Props is not found, please check %s response", u.String())
 	}
 	if data.Props.PageProps == nil {
-		return nil, nil, fmt.Errorf("the data of Props.PageProps is not found, please check %s response", u.String())
+		return nil, res, fmt.Errorf("the data of Props.PageProps is not found, please check %s response", u.String())
 	}
 	if data.Props.PageProps.PageData == nil {
-		return nil, nil, fmt.Errorf("the data of Props.PageProps.PageData is not found, please check %s response", u.String())
+		return nil, res, fmt.Errorf("the data of Props.PageProps.PageData is not found, please check %s response", u.String())
 	}
+
 	if data.Props.PageProps.PageData.Timeline == nil {
-		return nil, nil, fmt.Errorf("the data of Props.PageProps.PageData.Timeline is not found, please check %s response", u.String())
+		return nil, res, fmt.Errorf("the data of Props.PageProps.PageData.Timeline is not found, please check %s response", u.String())
 	}
 
 	return data.Props.PageProps.PageData.Timeline.Entry, res, nil
