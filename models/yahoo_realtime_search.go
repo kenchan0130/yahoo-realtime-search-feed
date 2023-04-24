@@ -1,7 +1,8 @@
 package models
 
 import (
-	"math/big"
+	"fmt"
+	"strconv"
 	"time"
 )
 
@@ -10,7 +11,11 @@ type unixTimestamp struct {
 }
 
 func (t *unixTimestamp) UnmarshalJSON(data []byte) error {
-	t.Time = time.Unix(big.NewInt(0).SetBytes(data).Int64(), 0)
+	v, err := strconv.Atoi(string(data))
+	if err != nil {
+		return fmt.Errorf("strconv.Atoi(): %v", v)
+	}
+	t.Time = time.Unix(int64(v), 0)
 
 	return nil
 }
