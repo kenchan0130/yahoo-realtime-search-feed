@@ -18,10 +18,13 @@ jobs:
         with:
           go-version-file: ./go.mod
           cache: true
-      - name: Test
+      - name: Get dependencies
         run: |
-          go test -v ./...
-      - name: Build
+          make install
+      - name: Run test
+        run: |
+          make test
+      - name: Check for build ability
         run: |
           go build -v ./main.go
 
@@ -30,8 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: golangci-lint
-        uses: golangci/golangci-lint-action@v3.4.0
+      - uses: golangci/golangci-lint-action@v3.4.0
         with:
           version: latest
 

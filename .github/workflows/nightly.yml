@@ -1,0 +1,21 @@
+name: Nigthly
+on:
+  schedule:
+    - cron: "0 0 * * *"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: ./go.mod
+          cache: true
+      - name: Get dependencies
+        run: |
+          make install
+      - name: Run test
+        run: |
+          make test
