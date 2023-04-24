@@ -1,0 +1,49 @@
+name: CI
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - "!*"
+    paths-ignore:
+      - "**.md"
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-go@v4
+        with:
+          go-version-file: ./go.mod
+          cache: true
+      - name: Test
+        run: |
+          go test -v ./...
+      - name: Build
+        run: |
+          go build -v ./main.go
+
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3.4.0
+        with:
+          version: latest
+
+  deploy:
+    needs:
+      - test
+      - lint
+    if: contains(github.ref, 'main')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: fjogeleit/http-request-action@v1
+        with:
+          url: ${{ secrets.RENDER_COM_DEPLOY_HOOK_URL }}
+          method: 'GET'
