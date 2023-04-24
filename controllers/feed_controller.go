@@ -9,8 +9,11 @@ import (
 	"github.com/samber/lo"
 	"log"
 	"net/http"
+	"strconv"
 	"strings"
 )
+
+const defaultIndexLimit = 10
 
 type FeedController struct {
 	YahooRealtimeSearchRepository repositories.YahooRealtimeSearchRepository
@@ -18,6 +21,11 @@ type FeedController struct {
 
 func (fc FeedController) Index(c *gin.Context) {
 	searchQuery := strings.TrimSpace(c.Query("q"))
+	limitQuery := strings.TrimSpace(c.Query("limit"))
+	limit, err := strconv.Atoi(limitQuery)
+	if err != nil {
+		limit = defaultIndexLimit
+	}
 
 	entryList, res, err := fc.YahooRealtimeSearchRepository.GetTimelineEntry(searchQuery)
 	if err != nil {
@@ -31,7 +39,7 @@ func (fc FeedController) Index(c *gin.Context) {
 		requestURL = res.Request.URL.String()
 	}
 
-	rss, err := fc.generateFeed(entryList, searchQuery, requestURL)
+	rss, err := fc.generateFeed((*entryList)[:limit], searchQuery, requestURL)
 	if err != nil {
 		log.Println(err)
 		c.String(http.StatusInternalServerError, "Error. Please check server log.")
@@ -42,7 +50,7 @@ func (fc FeedController) Index(c *gin.Context) {
 	c.String(http.StatusOK, rss)
 }
 
-func (fc FeedController) generateFeed(entryList *[]models.TimelineEntry, query string, requestURL string) (string, error) {
+func (fc FeedController) generateFeed(entryList []models.TimelineEntry, query string, requestURL string) (string, error) {
 	feed := &feeds.Feed{
 		Title:       fmt.Sprintf("Realtime Search Feed with '%s'", query),
 		Link:        &feeds.Link{Href: requestURL},
@@ -54,7 +62,7 @@ func (fc FeedController) generateFeed(entryList *[]models.TimelineEntry, query s
 		},
 	}
 
-	feed.Items = lo.Map(*entryList, func(entry models.TimelineEntry, _ int) *feeds.Item {
+	feed.Items = lo.Map(entryList, func(entry models.TimelineEntry, _ int) *feeds.Item {
 		return &feeds.Item{
 			Title:       *entry.DisplayText,
 			Link:        &feeds.Link{Href: *entry.URL},
