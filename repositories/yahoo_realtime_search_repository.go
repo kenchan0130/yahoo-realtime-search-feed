@@ -6,9 +6,12 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"regexp"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/kenchan0130/yahoo-realtime-search-feed/models"
+	"github.com/kenchan0130/yahoo-realtime-search-feed/utils"
+	"github.com/samber/lo"
 )
 
 type YahooRealtimeSearchRepository struct {
@@ -86,6 +89,32 @@ func (t YahooRealtimeSearchRepository) GetTimelineEntry(query string) (*[]models
 	if data.Props.PageProps.PageData.Timeline == nil {
 		return nil, res, fmt.Errorf("the data of Props.PageProps.PageData.Timeline is not found, please check %s response", u.String())
 	}
+
+	enclosureRegexp, err := regexp.Compile("\tSTART\t(.+)\tEND\t")
+	if err != nil {
+		return nil, nil, fmt.Errorf("regexp.Compile(): %v", err)
+	}
+
+	cb := func(s string) string {
+		matches := enclosureRegexp.FindStringSubmatch(s)
+		if len(matches) == 2 {
+			if word := matches[1]; word != "" {
+				return word
+			} else {
+				return s
+			}
+		}
+		return s
+	}
+
+	// Normalize display text about enclosure strings
+	data.Props.PageProps.PageData.Timeline.Entry = utils.Pointer(lo.Map(*data.Props.PageProps.PageData.Timeline.Entry, func(item models.TimelineEntry, _ int) models.TimelineEntry {
+		item.DisplayText = utils.Pointer(enclosureRegexp.ReplaceAllStringFunc(*item.DisplayText, cb))
+		item.DisplayTextBody = utils.Pointer(enclosureRegexp.ReplaceAllStringFunc(*item.DisplayTextBody, cb))
+		item.DisplayTextFragments = utils.Pointer(enclosureRegexp.ReplaceAllStringFunc(*item.DisplayTextFragments, cb))
+
+		return item
+	}))
 
 	return data.Props.PageProps.PageData.Timeline.Entry, res, nil
 }
