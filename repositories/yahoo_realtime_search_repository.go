@@ -90,7 +90,7 @@ func (t YahooRealtimeSearchRepository) GetTimelineEntry(query string) (*[]models
 		return nil, res, fmt.Errorf("the data of Props.PageProps.PageData.Timeline is not found, please check %s response", u.String())
 	}
 
-	enclosureRegexp, err := regexp.Compile("\\tSTART\\t(.*?)\\tEND\\t")
+	enclosureRegexp, err := regexp.Compile(`\tSTART\t(.*?)\tEND\t`)
 	if err != nil {
 		return nil, nil, fmt.Errorf("regexp.Compile(): %v", err)
 	}
