@@ -5,7 +5,7 @@ go 1.19
 require (
 	github.com/PuerkitoBio/goquery v1.8.1
 	github.com/gin-gonic/gin v1.9.1
-	github.com/google/uuid v1.4.0
+	github.com/google/uuid v1.6.0
 	github.com/gorilla/feeds v1.1.2
 	github.com/mmcdole/gofeed v1.2.1
 	github.com/samber/lo v1.39.0
