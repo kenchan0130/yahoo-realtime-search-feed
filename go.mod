@@ -1,6 +1,6 @@
 module github.com/kenchan0130/yahoo-realtime-search-feed
 
-go 1.19
+go 1.22
 
 require (
 	github.com/PuerkitoBio/goquery v1.9.1
