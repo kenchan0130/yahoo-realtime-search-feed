@@ -19,7 +19,7 @@ func main() {
 	router := routers.Init()
 	err := router.Run(fmt.Sprintf(":%d", port))
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatalf("%s", err.Error())
 		os.Exit(1)
 	}
 }
