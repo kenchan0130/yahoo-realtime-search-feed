@@ -7,7 +7,7 @@ WORKDIR /app
 COPY . .
 RUN go build main.go
 
-FROM alpine:3.21.3
+FROM alpine:3.22.0
 COPY --from=builder /app /app
 
 ENV GIN_MODE release
