@@ -9,7 +9,7 @@ require (
 	github.com/gorilla/feeds v1.2.0
 	github.com/mmcdole/gofeed v1.3.0
 	github.com/samber/lo v1.50.0
-	github.com/stretchr/testify v1.10.0
+	github.com/stretchr/testify v1.11.1
 )
 
 require (
