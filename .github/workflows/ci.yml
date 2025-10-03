@@ -1,15 +1,13 @@
 name: CI
 on:
-  push:
-    branches:
-      - main
-    paths-ignore:
-      - "**.md"
   pull_request:
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
@@ -31,6 +29,9 @@ jobs:
   lint:
     name: lint
     runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
         with:
@@ -45,16 +46,3 @@ jobs:
       - name: Run lint
         run: |
           make lint
-
-  deploy:
-    needs:
-      - test
-      - lint
-    if: contains(github.ref, 'main')
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: fjogeleit/http-request-action@v1
-        with:
-          url: ${{ secrets.RENDER_COM_DEPLOY_HOOK_URL }}
-          method: 'GET'
