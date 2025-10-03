@@ -49,19 +49,22 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Get simple version (remove `v` prefix if exists)
+      - name: Get version (no v)
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
         id: version
-        run: echo "version=${VERSION#v}" >> $GITHUB_ENV
-        env:
-          VERSION: ${{ needs.tagpr.outputs.tag }}
+        with:
+          script: |
+            const tag = '${{ needs.tagpr.outputs.tag }}'
+            const no_v = tag.replace('v', '')
+            core.setOutput('no-v', no_v)
       - name: Extract metadata for Docker
         id: meta
         uses: docker/metadata-action@c1e51972afc2121e065aed6d45c65596fe445f3f # v5.8.0
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=${{ steps.version.outputs.version }}
-            type=sha,format=short
+            type=raw,value=${{ steps.version.outputs.no-v }}
+            type=sha,prefix=,format=short
           labels: |
             org.opencontainers.image.title="${{ env.IMAGE_NAME }}"
             org.opencontainers.image.vendor="${{ github.repository_owner }}"
