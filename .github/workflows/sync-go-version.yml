@@ -30,26 +30,19 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" > "$RUNNER_TEMP/pr.json"
-          python3 - "$RUNNER_TEMP/pr.json" <<'PY'
-          import json
-          import os
-          import sys
-
-          with open(sys.argv[1]) as source:
-              pr = json.load(source)
-          valid = (
-              pr["state"] == "open"
-              and pr["user"]["login"] == "dependabot[bot]"
-              and pr["base"]["ref"] == "main"
-              and pr["head"]["repo"]["full_name"] == os.environ["GITHUB_REPOSITORY"]
-              and pr["head"]["ref"] == os.environ["HEAD_BRANCH"]
-              and pr["head"]["sha"] == os.environ["HEAD_SHA"]
-          )
-          if valid:
-              with open(os.environ["GITHUB_OUTPUT"], "a") as output:
-                  output.write("valid=true\n")
-          PY
+          set -o pipefail
+          if gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" | jq -e \
+            --arg repo "$GITHUB_REPOSITORY" \
+            --arg branch "$HEAD_BRANCH" \
+            --arg sha "$HEAD_SHA" \
+            '.state == "open" and
+             .user.login == "dependabot[bot]" and
+             .base.ref == "main" and
+             .head.repo.full_name == $repo and
+             .head.ref == $branch and
+             .head.sha == $sha' > /dev/null; then
+            echo 'valid=true' >> "$GITHUB_OUTPUT"
+          fi
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         if: steps.validate.outputs.valid == 'true'
         with:
@@ -66,7 +59,7 @@ jobs:
         if: steps.validate.outputs.valid == 'true'
         id: update
         run: |
-          python3 trusted/scripts/sync-go-version.py --write target
+          sh trusted/scripts/sync-go-version.sh --write target
           if ! git -C target diff --quiet -- go.mod; then
             echo 'changed=true' >> "$GITHUB_OUTPUT"
           fi
