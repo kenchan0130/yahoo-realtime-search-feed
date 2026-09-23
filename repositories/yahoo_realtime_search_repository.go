@@ -40,7 +40,12 @@ func (t YahooRealtimeSearchRepository) GetTimelineEntry(query string) (*[]models
 		return nil, nil, fmt.Errorf("http.NewRequestWithContext(): %v", err)
 	}
 
-	res, err := t.HTTPClient.Do(req)
+	// The request target is fixed, and redirects must not send it to another host.
+	client := *t.HTTPClient
+	client.CheckRedirect = func(*http.Request, []*http.Request) error {
+		return http.ErrUseLastResponse
+	}
+	res, err := client.Do(req)
 	if err != nil {
 		return nil, nil, fmt.Errorf("http.Client#Do(): %v", err)
 	}
