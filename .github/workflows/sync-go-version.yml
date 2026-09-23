@@ -21,13 +21,14 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     env:
-      GH_TOKEN: ${{ github.token }}
       PR_NUMBER: ${{ github.event.workflow_run.pull_requests[0].number }}
       HEAD_BRANCH: ${{ github.event.workflow_run.head_branch }}
       HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
     steps:
       - name: Validate Dependabot pull request
         id: validate
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           gh api "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER" > "$RUNNER_TEMP/pr.json"
           python3 - "$RUNNER_TEMP/pr.json" <<'PY'
@@ -60,6 +61,7 @@ jobs:
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           path: target
+          persist-credentials: false
       - name: Update go.mod
         if: steps.validate.outputs.valid == 'true'
         id: update
@@ -70,12 +72,17 @@ jobs:
           fi
       - name: Commit matching Go version
         if: steps.update.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
           git -C target config user.name 'github-actions[bot]'
           git -C target config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git -C target add go.mod
           git -C target -c core.hooksPath=/dev/null commit -m 'Sync go.mod with Docker Go version [dependabot skip]'
+          gh auth setup-git
           git -C target push origin "HEAD:refs/heads/$HEAD_BRANCH"
       - name: Run CI on updated commit
         if: steps.update.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: gh workflow run ci.yml --ref "$HEAD_BRANCH"
