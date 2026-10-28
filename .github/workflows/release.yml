@@ -22,15 +22,16 @@ jobs:
         uses: Songmu/tagpr@2afc990a4a5a9a340665cc1a484c2102f7de332f # v1.21.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  release-image-to-github:
+  release-image:
     needs: tagpr
     if: needs.tagpr.outputs.tag != ''
-    name: Release image to GitHub
+    name: Release image to GitHub and Docker Hub
     runs-on: ubuntu-latest
     timeout-minutes: 20
     env:
       REGISTRY: ghcr.io
       IMAGE_NAME: ${{ github.repository }}
+      DOCKERHUB_IMAGE_NAME: docker.io/${{ github.repository }}
     permissions:
       contents: read
       packages: write
@@ -49,6 +50,11 @@ jobs:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Log in to Docker Hub
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Get version (no v)
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         id: version
@@ -61,7 +67,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@dc802804100637a589fabce1cb79ff13a1411302 # v6.2.0
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+            ${{ env.DOCKERHUB_IMAGE_NAME }}
           tags: |
             type=raw,value=${{ steps.version.outputs.no-v }}
             type=sha,prefix=,format=short
