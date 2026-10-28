@@ -1,4 +1,4 @@
-FROM golang:1.27.1 as builder
+FROM golang:1.27.3 AS builder
 
 ENV CGO_ENABLED=0
 ENV GOOS=linux
@@ -7,7 +7,7 @@ WORKDIR /app
 COPY . .
 RUN go build main.go
 
-FROM alpine:3.24.2
+FROM alpine:3.24.3
 COPY --from=builder /app /app
 
 CMD /app/main $PORT
