@@ -3,7 +3,7 @@ set -eu
 
 mode=${1:?use --check or --write}
 root=${2:-.}
-docker_go=$(sed -nE 's/^FROM golang:([0-9]+\.[0-9]+)(\.[0-9]+)?[[:space:]].*$/\1/p' "$root/Dockerfile" | head -n 1)
+docker_go=$(sed -nE 's/^FROM([[:space:]]+--platform=[^[:space:]]+)?[[:space:]]+golang:([0-9]+\.[0-9]+)(\.[0-9]+)?[[:space:]].*$/\2/p' "$root/Dockerfile" | head -n 1)
 module_go=$(sed -nE 's/^go ([0-9]+\.[0-9]+)(\.[0-9]+)?$/\1/p' "$root/go.mod")
 
 if [ -z "$docker_go" ] || [ -z "$module_go" ]; then
