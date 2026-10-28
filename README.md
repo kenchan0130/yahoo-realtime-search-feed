@@ -33,19 +33,19 @@ This endpoint supports the following query parameters.
 #### Search query syntax
 
 `q` is passed to Yahoo! Realtime Search as it is, so its search operators are available.
-The value of `q` must be URL-encoded (UTF-8), including spaces, `+` and multibyte characters.
+The value of `q` must be URL-encoded (UTF-8), including spaces, `+` and multibyte characters, and sent as `/feed?q=<URL-encoded value>` (e.g. `/feed?q=golang+-rust`).
 
-| pattern       | meaning                                                         | example                   |
-|---------------|-----------------------------------------------------------------|---------------------------|
-| `A`           | entries containing `A`.                                         | `golang`                  |
-| `A B`         | AND: entries containing both `A` and `B`.                       | `golang rust`             |
-| `A OR B`      | OR: entries containing `A` or `B`.                              | `golang OR rust`          |
-| `A -B`        | NOT: entries containing `A`, excluding those containing `B`.    | `golang -rust`            |
-| `A -B -C`     | excludes entries containing **either** `B` or `C`.              | `golang -rust -python`    |
-| `A (B OR C)`  | grouping: `A` AND (`B` OR `C`).                                 | `golang (rust OR python)` |
-| `A B OR C`    | same as `A (B OR C)`, because OR binds tighter than AND.        | `golang rust OR python`   |
-| `A OR B -B`   | exclusions apply to the whole query, so no entries contain `B`. | `golang OR rust -rust`    |
-| multibyte     | the operators above also work with Japanese and other terms.    | `猫 -犬`                  |
+| pattern      | meaning                                                         | example                   | URL-encoded value             |
+|--------------|-----------------------------------------------------------------|---------------------------|-------------------------------|
+| `A`          | entries containing `A`.                                         | `golang`                  | `golang`                      |
+| `A B`        | AND: entries containing both `A` and `B`.                       | `golang rust`             | `golang+rust`                 |
+| `A OR B`     | OR: entries containing `A` or `B`.                              | `golang OR rust`          | `golang+OR+rust`              |
+| `A -B`       | NOT: entries containing `A`, excluding those containing `B`.    | `golang -rust`            | `golang+-rust`                |
+| `A -B -C`    | excludes entries containing **either** `B` or `C`.              | `golang -rust -python`    | `golang+-rust+-python`        |
+| `A (B OR C)` | grouping: `A` AND (`B` OR `C`).                                 | `golang (rust OR python)` | `golang+%28rust+OR+python%29` |
+| `A B OR C`   | same as `A (B OR C)`, because OR binds tighter than AND.        | `golang rust OR python`   | `golang+rust+OR+python`       |
+| `A OR B -B`  | exclusions apply to the whole query, so no entries contain `B`. | `golang OR rust -rust`    | `golang+OR+rust+-rust`        |
+| multibyte    | the operators above also work with Japanese and other terms.    | `猫 -犬`                  | `%E7%8C%AB+-%E7%8A%AC`        |
 
 Notes:
 
