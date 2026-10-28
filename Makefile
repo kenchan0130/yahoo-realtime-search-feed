@@ -1,6 +1,6 @@
 PHONY: tools
 tools:
-	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.13.2
+	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.15.0
 
 PHONY: tidy
 tidy:

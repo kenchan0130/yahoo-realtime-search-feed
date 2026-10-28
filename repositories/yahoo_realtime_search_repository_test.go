@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"errors"
 	"io"
 	"net/http"
 	"strings"
@@ -41,5 +42,26 @@ func TestGetTimelineEntryDoesNotFollowRedirects(t *testing.T) {
 	}
 	if client.CheckRedirect != nil {
 		t.Error("the caller's HTTP client was modified")
+	}
+}
+
+func TestGetTimelineEntryReturnsErrQueryTooLong(t *testing.T) {
+	body := `<html><body><script id="__NEXT_DATA__" type="application/json">` +
+		`{"props":{"pageProps":{"pageData":{"query":"long","searchError":{"errorType":"longQuery"}}}}}` +
+		`</script></body></html>`
+	client := &http.Client{
+		Transport: roundTripFunc(func(req *http.Request) (*http.Response, error) {
+			return &http.Response{
+				StatusCode: http.StatusOK,
+				Status:     "200 OK",
+				Body:       io.NopCloser(strings.NewReader(body)),
+				Request:    req,
+			}, nil
+		}),
+	}
+
+	_, _, err := (YahooRealtimeSearchRepository{HTTPClient: client}).GetTimelineEntry("long")
+	if !errors.Is(err, ErrQueryTooLong) {
+		t.Errorf("expected ErrQueryTooLong, got %v", err)
 	}
 }
