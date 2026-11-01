@@ -3,7 +3,7 @@ module github.com/kenchan0130/yahoo-realtime-search-feed
 go 1.27
 
 require (
-	github.com/goccy/go-json v0.10.5
+	github.com/goccy/go-json v0.12.0
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/feeds v1.2.0
 	github.com/mmcdole/gofeed v1.5.0
